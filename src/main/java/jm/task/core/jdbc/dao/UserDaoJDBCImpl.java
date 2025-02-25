@@ -16,11 +16,11 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void createUsersTable() {
 
-        String sql = "CREATE TABLE kata_preproj_1_2task.USERS_TABLE (" +
+        String sql = "CREATE TABLE IF NOT EXISTS kata_preproj_1_2task.USERS_TABLE (" +
                 "  ID BIGINT NOT NULL AUTO_INCREMENT," +
                 "  NAME VARCHAR(100) NOT NULL," +
                 "  LAST_NAME VARCHAR(100) NOT NULL," +
-                "  AGE INT(3) NOT NULL," +
+                "  AGE TINYINT NOT NULL," +
                 "  PRIMARY KEY (ID));";
 
         try (Statement statement = connection.createStatement()) {
@@ -33,7 +33,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void dropUsersTable() {
-        String sql = "DROP TABLE USERS_TABLE ";
+        String sql = "DROP TABLE IF EXISTS USERS_TABLE ";
 
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
@@ -74,7 +74,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
-        String sql = "SELECT ID, NAME, LAST_NAME, AGE FROM kata_preproj_1_2task.USERS_TABLE";
+        String sql = "SELECT * FROM kata_preproj_1_2task.USERS_TABLE";
 
         if (connection == null) {
             System.err.println("Ошибка: соединение с базой данных не установлено.");
