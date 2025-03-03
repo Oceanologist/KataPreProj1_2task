@@ -16,8 +16,6 @@ public class UserDaoHibernateImpl implements UserDao {
     public UserDaoHibernateImpl() {
 
     }
-
-
     @Override
     public void createUsersTable() {
         String sql = "CREATE TABLE IF NOT EXISTS kata_preproj_1_2task.USERS_TABLE (" +
@@ -38,10 +36,9 @@ public class UserDaoHibernateImpl implements UserDao {
                 transaction.rollback();
             System.err.println("Ошибка при создании таблицы");
             throw new RuntimeException(e);
-        }
-        if (session != null)
+        } finally {
             session.close();
-
+        }
 
     }
 
@@ -60,24 +57,24 @@ public class UserDaoHibernateImpl implements UserDao {
                 transaction.rollback();
             System.err.println("Ошибка при удалении таблицы");
             throw new RuntimeException(e);
-        }
-        if (session != null)
+        } finally {
             session.close();
+        }
 
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        String sql = "INSERT INTO USERS_TABLE ( NAME, LAST_NAME, AGE) VALUES (:name, :lastName, :age)";
+        String hql = "INSERT INTO USERS_TABLE ( NAME, LAST_NAME, AGE) VALUES (:name, :lastName, :age)";
         Session session = Util.getSessionFactory().openSession();
         Transaction transaction = null;
 
         try {
             transaction = session.beginTransaction();
-            session.createNativeQuery(sql).
-                    setParameter("NAME", name).
-                    setParameter("LAST_NAME", lastName).
-                    setParameter("AGE", age).
+            session.createNativeQuery(hql).
+                    setParameter("name", name).
+                    setParameter("lastName", lastName).
+                    setParameter("age", age).
                     executeUpdate();
             transaction.commit();
         } catch (Exception e) {
@@ -85,21 +82,21 @@ public class UserDaoHibernateImpl implements UserDao {
                 transaction.rollback();
             System.err.println("Ошибка при внесении " + name + lastName + " в таблицу");
             e.printStackTrace();
-        }
-        if (session != null)
+        } finally {
             session.close();
+        }
 
     }
 
 
     @Override
     public void removeUserById(long id) {
-        String sql = "DELETE FROM kata_preproj_1_2task.USERS_TABLE WHERE id =:ID";
+        String hql = "DELETE FROM kata_preproj_1_2task.USERS_TABLE WHERE id =:ID";
         Session session = Util.getSessionFactory().openSession();
         Transaction transaction = null;
         try {
             transaction = session.beginTransaction();
-            session.createNativeQuery(sql).
+            session.createNativeQuery(hql).
                     setParameter("ID", id).
                     executeUpdate();
         } catch (Exception e) {
@@ -107,9 +104,10 @@ public class UserDaoHibernateImpl implements UserDao {
                 transaction.rollback();
             System.err.println("Ошибка при удалении пользователя под № " + id + " из таблицы");
             e.printStackTrace();
-        }
-        if (session != null)
+        } finally {
             session.close();
+        }
+
 
     }
 
@@ -122,28 +120,31 @@ public class UserDaoHibernateImpl implements UserDao {
         Session session = Util.getSessionFactory().openSession();
 
         List<User> userList = new ArrayList<>();
-        String sql = "SELECT * FROM kata_preproj_1_2task.USERS_TABLE";
+
 
         try {
-            Query<User> query = session.createSQLQuery(sql).addEntity(User.class);
-            userList = query.list();
+            session.beginTransaction();
+            userList = session.createQuery("FROM User").getResultList();
+            session.getTransaction().commit();
 
 
         } catch (HibernateException e) {
             System.err.println("Ошибка при получении данных:");
+        } finally {
+            session.close();
         }
-        session.close();
+
         return userList;
     }
 
     @Override
     public void cleanUsersTable() {
-        String sql = "TRUNCATE TABLE kata_preproj_1_2task.USERS_TABLE";
+        String hql = "TRUNCATE TABLE kata_preproj_1_2task.USERS_TABLE";
         Session session = Util.getSessionFactory().openSession();
         Transaction transaction = null;
         try {
             transaction = session.beginTransaction();
-            session.createNativeQuery(sql).
+            session.createNativeQuery(hql).
                     executeUpdate();
             transaction.commit();
         } catch (HibernateException e) {
@@ -151,9 +152,9 @@ public class UserDaoHibernateImpl implements UserDao {
                 transaction.rollback();
             System.err.println("Ошибка при удалении пользователей в таблице");
             e.printStackTrace();
-        }
-        if (session != null)
+        } finally {
             session.close();
+        }
 
     }
 

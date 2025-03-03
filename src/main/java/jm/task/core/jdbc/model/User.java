@@ -2,19 +2,20 @@ package jm.task.core.jdbc.model;
 
 import javax.persistence.*;
 
-@Table
+@Entity
+@Table(name = "USERS_TABLE", schema = "kata_preproj_1_2task")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="NAME")
+    @Column(name = "NAME")
     private String name;
 
-    @Column(name="LAST_NAME")
+    @Column(name = "LAST_NAME")
     private String lastName;
 
-    @Column(name="AGE")
+    @Column(name = "AGE")
     private Byte age;
 
     public User() {
